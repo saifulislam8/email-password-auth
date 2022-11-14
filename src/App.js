@@ -10,33 +10,34 @@ import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 
 const auth = getAuth(app);
 function App() {
-  const [validated, setValidated] = useState(false);
-  const [special, setSpecial] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
+  const [validated, setValidated] = useState(false);
+  const [error, setError] = useState('');
+
 
   const handleEmailBlur = event =>{
     setEmail(event.target.value)
     console.log(email)
   }
   const handlePasswordBlur = event =>{
-    setPassword(event.target.value)
+    console.log(password)
+   setPassword(event.target.value)
   }
   const handleFromSubmit = event =>{
-    event.preventDefault();
-
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
+      event.preventDefault();
       event.stopPropagation();
       return;
     }
-    if(/(?=.*?[A-Z])/.test(password)){
-      setSpecial('Please Password should contain al leat one uppercase charachter')
+    if(!/(?=.*?[#?!@$%^&*-])/.test(password)){
+      setError('please password should contain one special character')
       return;
     }
-
+   setError();
     setValidated(true);
-    setSpecial('');
+    event.preventDefault();
     createUserWithEmailAndPassword(auth, email, password)
     .then(result =>{
       const user = result.user;
@@ -45,15 +46,14 @@ function App() {
     .catch(error =>{
       console.error(error)
     })
-    
-     event.preventDefault();
-  }
+      }
   return (
-    <div >
+
+    <div>
         
         <div  className="registered w-50 mx-auto mt-4">
           <h2 className='text-primary'>Please Regsitered Here!!!</h2>
-        <Form noValidate validated={validated} onSubmit={handleFromSubmit}>
+        <Form  noValidate validated={validated} onSubmit={handleFromSubmit}>
       <Form.Group className="mb-3" controlId="formBasicEmail">
         <Form.Label>Email address</Form.Label>
         <Form.Control onBlur={handleEmailBlur} type="email" placeholder="Enter email" required />
@@ -72,7 +72,7 @@ function App() {
             Please provide a valid password.
           </Form.Control.Feedback>
       </Form.Group>
-      <p className='text-danger'>{special}</p>
+      <p className='text-danger'>{error}</p>
       <Button  variant="primary" type="submit">
         Submit
       </Button>
