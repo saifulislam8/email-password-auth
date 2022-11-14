@@ -11,25 +11,32 @@ import { createUserWithEmailAndPassword, getAuth } from "firebase/auth";
 const auth = getAuth(app);
 function App() {
   const [validated, setValidated] = useState(false);
-
+  const [special, setSpecial] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
 
   const handleEmailBlur = event =>{
     setEmail(event.target.value)
+    console.log(email)
   }
   const handlePasswordBlur = event =>{
     setPassword(event.target.value)
   }
   const handleFromSubmit = event =>{
+    event.preventDefault();
+
     const form = event.currentTarget;
     if (form.checkValidity() === false) {
-      event.preventDefault();
       event.stopPropagation();
+      return;
+    }
+    if(/(?=.*?[A-Z])/.test(password)){
+      setSpecial('Please Password should contain al leat one uppercase charachter')
       return;
     }
 
     setValidated(true);
+    setSpecial('');
     createUserWithEmailAndPassword(auth, email, password)
     .then(result =>{
       const user = result.user;
@@ -65,6 +72,7 @@ function App() {
             Please provide a valid password.
           </Form.Control.Feedback>
       </Form.Group>
+      <p className='text-danger'>{special}</p>
       <Button  variant="primary" type="submit">
         Submit
       </Button>
